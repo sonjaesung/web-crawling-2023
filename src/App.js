@@ -1,25 +1,36 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { Component, Fragment, useEffect, useState } from 'react';
+import { HashRouter as Router, Route, Switch } from 'react-router-dom';
+import { Helmet } from 'react-helmet'; // meta 등 head 내 태그 설정
+import { inject, observer, useObserver } from 'mobx-react';
+import axios from 'axios';
+import { Cheerio } from 'cheerio';
 
-function App() {
+const App = observer(() => {
+  const [pageData, setPageData] = useState();
+
+  const getPage = () => {
+    axios({
+      method: 'get',
+      url: `/search.naver?where=nexearch&sm=top_hty&fbm=1&ie=utf8&query=가나`,
+      withCredentials: true,
+    }).then(res => {
+      setPageData(res.data);
+    });
+  };
+
+  useEffect(() => {
+    getPage();
+  }, []);
+
   return (
     <div className="App">
       <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
+        {console.log(pageData)}
+
+        {pageData && <div dangerouslySetInnerHTML={{ __html: pageData }}></div>}
       </header>
     </div>
   );
-}
+});
 
 export default App;
