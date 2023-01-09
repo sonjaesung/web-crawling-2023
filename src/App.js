@@ -1,21 +1,33 @@
 import React, { Component, Fragment, useEffect, useState } from 'react';
-import { HashRouter as Router, Route, Switch } from 'react-router-dom';
+import { HashRouter as Router, Route, Routes, Outlet } from 'react-router-dom';
+import routes from './routes';
 import { Helmet } from 'react-helmet'; // meta 등 head 내 태그 설정
 import { inject, observer, useObserver } from 'mobx-react';
 import axios from 'axios';
-import { Cheerio } from 'cheerio';
+import { load } from 'cheerio';
 
 const App = observer(() => {
   const [pageData, setPageData] = useState();
+  const [newSongList, setNewSongList] = useState([]);
 
   const getPage = () => {
-    axios({
-      method: 'get',
-      url: `/search.naver?where=nexearch&sm=top_hty&fbm=1&ie=utf8&query=가나`,
-      withCredentials: true,
-    }).then(res => {
-      setPageData(res.data);
-    });
+    setNewSongList([]);
+    try {
+      axios({
+        method: 'get',
+        url: `tjsong/song_monthNew.asp`,
+        withCredentials: true,
+      }).then(res => {
+        const $ = load(res.data);
+        let nameArr = [];
+        $('#BoardType1>.board_type1>tbody>tr>.left').each((idx, item) => {
+          nameArr.push(item.children[0].data);
+        });
+        setNewSongList(nameArr);
+      });
+    } catch (err) {
+      console.log(err);
+    }
   };
 
   useEffect(() => {
@@ -23,12 +35,21 @@ const App = observer(() => {
   }, []);
 
   return (
-    <div className="App">
-      <header className="App-header">
-        {console.log(pageData)}
-
-        {pageData && <div dangerouslySetInnerHTML={{ __html: pageData }}></div>}
-      </header>
+    <div className="body_wrap">
+      <Routes>
+        {routes.map((route, idx) => (
+          <Route key={idx} path={route.path} element={route.element} />
+        ))}
+        {/*newSongList.length > 0 && (
+            <div>
+              {newSongList
+                .sort((a, b) => a.localeCompare(b))
+                .map((item, idx) => {
+                  return <div key={idx}>{item}</div>;
+                })}
+            </div>
+              )*/}
+      </Routes>
     </div>
   );
 });
