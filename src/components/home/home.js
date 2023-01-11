@@ -1,10 +1,9 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import { useObserver } from 'mobx-react';
+import { observer } from 'mobx-react';
 import axios from 'axios';
 import { load } from 'cheerio';
 
-const HomeMain = () => {
-  const [pageData, setPageData] = useState();
+const HomeMain = observer(() => {
   const [newSongList, setNewSongList] = useState([]);
 
   const getPage = () => {
@@ -44,6 +43,6 @@ const HomeMain = () => {
       )}
     </Fragment>
   );
-};
+});
 
 export default HomeMain;
